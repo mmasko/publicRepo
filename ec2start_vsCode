@@ -1,0 +1,26 @@
+#!/bin/bash
+
+INSTANCE_ID="i-0edc6c4270bc33f3b"
+
+# Get instance state
+STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query "Reservations[0].Instances[0].State.Name" --output text)
+
+if [[ "$STATE" == "running" ]]; then
+    read -p "Instance is running. Do you want to stop it? (y/n): " RESP
+    if [[ "$RESP" == "y" ]]; then
+        aws ec2 stop-instances --instance-ids "$INSTANCE_ID"
+        echo "Stopping instance..."
+    else
+        echo "No action taken."
+    fi
+elif [[ "$STATE" == "stopped" ]]; then
+    read -p "Instance is stopped. Do you want to start it? (y/n): " RESP
+    if [[ "$RESP" == "y" ]]; then
+        aws ec2 start-instances --instance-ids "$INSTANCE_ID"
+        echo "Starting instance..."
+    else
+        echo "No action taken."
+    fi
+else
+    echo "Instance is in state: $STATE. No action taken."
+fi
